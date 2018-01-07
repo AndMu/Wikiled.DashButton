@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wikiled.DashButton", "Wikiled.DashButton\Wikiled.DashButton.csproj", "{F424B3C0-9CD7-4184-BC42-7614CB1DE07E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wikiled.DashButton.App", "..\Wikiled.DashButton.App\Wikiled.DashButton.App.csproj", "{319158C9-5B8D-4355-A497-A2A33A299D32}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wikiled.DashButton.App", "Wikiled.DashButton.App\Wikiled.DashButton.App.csproj", "{319158C9-5B8D-4355-A497-A2A33A299D32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
