@@ -3,6 +3,7 @@ using System.Reactive.Subjects;
 using NLog;
 using PacketDotNet;
 using SharpPcap;
+using SharpPcap.WinPcap;
 using Wikiled.Core.Standard.Arguments;
 
 namespace Wikiled.DashButton.Monitor
@@ -43,7 +44,9 @@ namespace Wikiled.DashButton.Monitor
 
         private void ProcessDevice(ICaptureDevice device)
         {
-            if (device == null)
+            var winpack = device as WinPcapDevice;
+            if (device == null ||
+                winpack?.Addresses.Count == 0)
             {
                 return;
             }
@@ -85,7 +88,7 @@ namespace Wikiled.DashButton.Monitor
                     return;
                 }
 
-                subscription.OnNext(new PacketInformation(vendorManager.ResolveVendor(device.MacAddress), device.MacAddress));
+                subscription.OnNext(new PacketInformation(vendorManager.ResolveVendor(eth.SourceHwAddress), eth.SourceHwAddress));
             }
             catch (Exception exception)
             {
