@@ -16,7 +16,7 @@ namespace Wikiled.DashButton.Monitor
 
         public override string ToString()
         {
-            return $"Packet: {Mac} {Vendor}";
+            return $"Packet: {Mac.GetMacName()} {Vendor}";
         }
     }
 }

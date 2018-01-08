@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.NetworkInformation;
 using Newtonsoft.Json;
-using Wikiled.Core.Standard.Arguments;
+using Wikiled.Core.Utility.Arguments;
 
 namespace Wikiled.DashButton.Monitor
 {
@@ -28,7 +27,7 @@ namespace Wikiled.DashButton.Monitor
         public VendorInfo ResolveVendor(PhysicalAddress macAddress)
         {
             var macAddrBytes = macAddress.GetAddressBytes().Take(3).ToArray();
-            var identifier = BitConverter.ToString(macAddrBytes).Replace('-', ':');
+            var identifier = macAddrBytes.GetMacName();
             var mask = identifier.Replace(":", string.Empty);
             if (!vendorNames.TryGetValue(mask, out var name))
             {

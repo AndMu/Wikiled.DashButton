@@ -4,7 +4,7 @@ using NLog;
 using PacketDotNet;
 using SharpPcap;
 using SharpPcap.WinPcap;
-using Wikiled.Core.Standard.Arguments;
+using Wikiled.Core.Utility.Arguments;
 
 namespace Wikiled.DashButton.Monitor
 {
