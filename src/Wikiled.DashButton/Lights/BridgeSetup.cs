@@ -13,6 +13,12 @@ namespace Wikiled.DashButton.Lights
         {
             IBridgeLocator locator = new HttpBridgeLocator();
             var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5));
+            foreach (var bridge in bridges)
+            {
+                ILocalHueClient client = new LocalHueClient(bridge.IpAddress);
+                var appKey = await client.RegisterAsync("DashService", "DashHost");
+            }
+            
             return bridges.ToArray();
         }
     }

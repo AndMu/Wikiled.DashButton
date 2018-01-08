@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -12,7 +13,8 @@ using Wikiled.DashButton.Service;
 
 namespace Wikiled.DashButton.App.Commands
 {
-    public class DiscoveryDashCmd : Command
+    [Description("Find dash buttons")]
+    public class DiscoveryCommand : Command
     {
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
@@ -28,33 +30,32 @@ namespace Wikiled.DashButton.App.Commands
 
             var serviceFile = Path.Combine(directory, "service.json");
             ConcurrentDictionary<string, string> buttonsRegister = new ConcurrentDictionary<string, string>();
-            if (!File.Exists(serviceFile))
+            ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
+            if (File.Exists(serviceFile))
             {
-                log.Error("serivce configuration service.json not found");
-                return;
-            }
-
-            var serviceConfiguration = JsonConvert.DeserializeObject<ServiceConfiguration>(File.ReadAllText(serviceFile));
-            foreach (var existingButton in serviceConfiguration.Buttons)
-            {
-                buttonsRegister[existingButton] = existingButton;
+                serviceConfiguration = JsonConvert.DeserializeObject<ServiceConfiguration>(File.ReadAllText(serviceFile));
+                foreach (var existingButton in serviceConfiguration.Buttons)
+                {
+                    buttonsRegister[existingButton] = existingButton;
+                }
             }
 
             try
             {
                 MonitoringManager manager = new MonitoringManager(VedorsManager.Load(vendors));
                 manager.StartListening()
-                       .Where(item => item.Vendor.Organization.ToLower().Contains("amazon") && !buttonsRegister.ContainsKey(item.Mac.GetMacName()))
+                       .Where(item => item.Vendor.Organization.ToLower().Contains("amazon"))
                        .Subscribe(
                            item =>
                            {
                                var name = item.Mac.GetMacName();
                                if (!buttonsRegister.TryAdd(name, name))
                                {
+                                   log.Info("Existing dashbutton found: {0}", item);
                                    return;
                                }
 
-                               log.Info("New dashbutton found: {0}", item);
+                               log.Info("NEW dashbutton found: {0}", item);
                                serviceConfiguration.Buttons = buttonsRegister.Keys.ToArray();
                                lock (serviceConfiguration)
                                {

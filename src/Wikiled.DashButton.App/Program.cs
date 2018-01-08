@@ -25,7 +25,8 @@ namespace Wikiled.DashButton.App
 
             log.Info("Starting {0} version utility...", Assembly.GetExecutingAssembly().GetName().Version);
             List<Command> commandsList = new List<Command>();
-            commandsList.Add(new DiscoveryDashCmd());
+            commandsList.Add(new DiscoveryCommand());
+            commandsList.Add(new BridgeCommand());
             var commands = commandsList.ToDictionary(item => item.Name, item => item, StringComparer.OrdinalIgnoreCase);
 
             if (args.Length == 0 ||
@@ -39,7 +40,6 @@ namespace Wikiled.DashButton.App
 
             command.ParseArguments(args.Skip(1));
             command.Execute();
-
         }
     }
 }
