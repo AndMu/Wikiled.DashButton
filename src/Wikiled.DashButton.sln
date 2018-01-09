@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2010
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wikiled.DashButton", "Wikiled.DashButton\Wikiled.DashButton.csproj", "{F424B3C0-9CD7-4184-BC42-7614CB1DE07E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.DashButton", "Wikiled.DashButton\Wikiled.DashButton.csproj", "{F424B3C0-9CD7-4184-BC42-7614CB1DE07E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wikiled.DashButton.App", "Wikiled.DashButton.App\Wikiled.DashButton.App.csproj", "{319158C9-5B8D-4355-A497-A2A33A299D32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Wikiled.DashButton.App", "Wikiled.DashButton.App\Wikiled.DashButton.App.csproj", "{319158C9-5B8D-4355-A497-A2A33A299D32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wikiled.DashButton.Tests", "Wikiled.DashButton.Tests\Wikiled.DashButton.Tests.csproj", "{F0A33B2F-F732-42ED-BA73-8AE4439A70B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{319158C9-5B8D-4355-A497-A2A33A299D32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{319158C9-5B8D-4355-A497-A2A33A299D32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{319158C9-5B8D-4355-A497-A2A33A299D32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F0A33B2F-F732-42ED-BA73-8AE4439A70B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F0A33B2F-F732-42ED-BA73-8AE4439A70B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F0A33B2F-F732-42ED-BA73-8AE4439A70B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F0A33B2F-F732-42ED-BA73-8AE4439A70B0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
