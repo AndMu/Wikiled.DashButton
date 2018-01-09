@@ -1,8 +1,10 @@
 ﻿using System.IO;
+using System.Reactive.Concurrency;
 using Newtonsoft.Json;
 using NLog;
 using Topshelf;
 using Wikiled.DashButton.Config;
+using Wikiled.DashButton.Lights;
 using Wikiled.DashButton.Monitor;
 using Wikiled.DashButton.Service;
 
@@ -34,7 +36,7 @@ namespace Wikiled.DashButton.App.Service
             {
                 x.Service<LightsService>(s =>
                 {
-                    s.ConstructUsing(name => new LightsService(serviceConfig, new MonitoringManager(VedorsManager.Load(vendors))));
+                    s.ConstructUsing(name => new LightsService(serviceConfig, new MonitoringManager(VedorsManager.Load(vendors)), new LightsManagerFactory(), TaskPoolScheduler.Default));
                     s.WhenStarted(tc => tc.Start());
                     s.WhenStopped(tc => tc.Stop());
                 });

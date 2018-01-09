@@ -23,6 +23,8 @@ namespace Wikiled.DashButton.Lights
         {
             client = new LocalHueClient(config.Ip);
             client.Initialize(config.AppKey);
+            var groups = client.GetGroupsAsync().Result;
+            TurnGroup("8").Wait();
         }
 
         public async Task TurnGroup(string groupName)

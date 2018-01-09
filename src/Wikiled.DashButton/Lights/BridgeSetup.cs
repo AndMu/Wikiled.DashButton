@@ -43,22 +43,24 @@ namespace Wikiled.DashButton.Lights
             }
 
             IBridgeLocator locator = new HttpBridgeLocator();
-            var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5));
+            var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
             foreach (var bridge in bridges)
             {
-                if (config.Bridges.ContainsKey(bridge.BridgeId))
+                if (config.Bridges.TryGetValue(bridge.BridgeId, out var bridgeConfig))
                 {
                     log.Info("Bridge {0} is already registered", bridge.BridgeId);
+                    bridgeConfig.Ip = bridge.IpAddress;
                     continue;
                 }
 
                 log.Info("Registering bridge: {0}. Please press button on it.", bridge.BridgeId);
                 ILocalHueClient client = new LocalHueClient(bridge.IpAddress);
-                var appKey = await policy.ExecuteAsync(() => client.RegisterAsync("DashService", "DashHost"));
-                BridgeConfig bridgeConfig = new BridgeConfig();
+                var appKey = await policy.ExecuteAsync(() => client.RegisterAsync("DashService", "DashHost")).ConfigureAwait(false);
+                bridgeConfig = new BridgeConfig();
                 bridgeConfig.AppKey = appKey;
                 bridgeConfig.ButtonAction = new Dictionary<string, ButtonAction>();
                 bridgeConfig.Id = bridge.BridgeId;
+                bridgeConfig.Ip = bridge.IpAddress;
                 config.Bridges[bridge.BridgeId] = bridgeConfig;
             }
         }

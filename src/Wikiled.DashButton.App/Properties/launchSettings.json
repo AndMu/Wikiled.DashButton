@@ -1,8 +1,7 @@
 {
   "profiles": {
     "Wikiled.DashButton.App": {
-      "commandName": "Project",
-      "commandLineArgs": "SetupBridge"
+      "commandName": "Project"
     }
   }
 }

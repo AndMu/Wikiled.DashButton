@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -7,7 +6,6 @@ using NLog;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.DashButton.Config;
 using Wikiled.DashButton.Lights;
-using Wikiled.DashButton.Service;
 
 namespace Wikiled.DashButton.App.Commands
 {

@@ -10,7 +10,6 @@ using NLog;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.DashButton.Config;
 using Wikiled.DashButton.Monitor;
-using Wikiled.DashButton.Service;
 
 namespace Wikiled.DashButton.App.Commands
 {
@@ -33,7 +32,6 @@ namespace Wikiled.DashButton.App.Commands
             var serviceFile = Path.Combine(directory, "service.json");
             ConcurrentDictionary<string, string> buttonsRegister = new ConcurrentDictionary<string, string>();
             ServiceConfig serviceConfig = new ServiceConfig();
-            serviceConfig.Buttons = new Dictionary<string, ButtonConfig>();
             if (File.Exists(serviceFile))
             {
                 serviceConfig = JsonConvert.DeserializeObject<ServiceConfig>(File.ReadAllText(serviceFile));

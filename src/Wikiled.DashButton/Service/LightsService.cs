@@ -18,7 +18,7 @@ namespace Wikiled.DashButton.Service
 
         private readonly ServiceConfig config;
 
-        private IScheduler scheduler;
+        private readonly IScheduler scheduler;
 
         private readonly Dictionary<string, Tuple<string, ButtonConfig>> buttons;
 
@@ -48,7 +48,7 @@ namespace Wikiled.DashButton.Service
                       .Subscribe(
                           item =>
                           {
-                              buttons[item].
+                              //buttons[item].
                           });
         }
 
