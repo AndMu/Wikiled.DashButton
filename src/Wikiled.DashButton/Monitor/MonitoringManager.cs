@@ -8,7 +8,7 @@ using Wikiled.Core.Utility.Arguments;
 
 namespace Wikiled.DashButton.Monitor
 {
-    public class MonitoringManager
+    public class MonitoringManager : IMonitoringManager
     {
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 

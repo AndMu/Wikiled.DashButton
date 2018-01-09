@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reactive.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using NLog;
 using Wikiled.Core.Utility.Arguments;
+using Wikiled.DashButton.Config;
 using Wikiled.DashButton.Monitor;
 using Wikiled.DashButton.Service;
 
 namespace Wikiled.DashButton.App.Commands
 {
     [Description("Find dash buttons")]
-    public class DiscoveryCommand : Command
+    public class DiscoverButtonsCommand : Command
     {
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
         public override void Execute()
         {
+            log.Info("Finding Dash Buttons...");
             var directory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var vendors = Path.Combine(directory, "vendors.json");
             if (!File.Exists(Path.Combine(directory, "vendors.json")))
@@ -30,13 +32,19 @@ namespace Wikiled.DashButton.App.Commands
 
             var serviceFile = Path.Combine(directory, "service.json");
             ConcurrentDictionary<string, string> buttonsRegister = new ConcurrentDictionary<string, string>();
-            ServiceConfiguration serviceConfiguration = new ServiceConfiguration();
+            ServiceConfig serviceConfig = new ServiceConfig();
+            serviceConfig.Buttons = new Dictionary<string, ButtonConfig>();
             if (File.Exists(serviceFile))
             {
-                serviceConfiguration = JsonConvert.DeserializeObject<ServiceConfiguration>(File.ReadAllText(serviceFile));
-                foreach (var existingButton in serviceConfiguration.Buttons)
+                serviceConfig = JsonConvert.DeserializeObject<ServiceConfig>(File.ReadAllText(serviceFile));
+                if (serviceConfig.Buttons == null)
                 {
-                    buttonsRegister[existingButton] = existingButton;
+                    serviceConfig.Buttons = new Dictionary<string, ButtonConfig>();
+                }
+
+                foreach (var existingButton in serviceConfig.Buttons)
+                {
+                    buttonsRegister[existingButton.Value.Mac] = existingButton.Key;
                 }
             }
 
@@ -56,10 +64,12 @@ namespace Wikiled.DashButton.App.Commands
                                }
 
                                log.Info("NEW dashbutton found: {0}", item);
-                               serviceConfiguration.Buttons = buttonsRegister.Keys.ToArray();
-                               lock (serviceConfiguration)
+                               lock (serviceConfig)
                                {
-                                   File.WriteAllText(serviceFile, JsonConvert.SerializeObject(serviceConfiguration));
+                                   ButtonConfig config = new ButtonConfig();
+                                   config.Mac = name;
+                                   serviceConfig.Buttons.Add(name, config);
+                                   File.WriteAllText(serviceFile, JsonConvert.SerializeObject(serviceConfig));
                                }
                            });
                 Console.ReadLine();

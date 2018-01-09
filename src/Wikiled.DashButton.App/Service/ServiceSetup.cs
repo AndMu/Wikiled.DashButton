@@ -1,6 +1,9 @@
 ﻿using System.IO;
+using Newtonsoft.Json;
 using NLog;
 using Topshelf;
+using Wikiled.DashButton.Config;
+using Wikiled.DashButton.Monitor;
 using Wikiled.DashButton.Service;
 
 namespace Wikiled.DashButton.App.Service
@@ -11,17 +14,27 @@ namespace Wikiled.DashButton.App.Service
 
         public void StartService(string directory)
         {
-            if (!File.Exists(Path.Combine(directory, "service.json")))
+            var serviceFile = Path.Combine(directory, "service.json");
+            if (!File.Exists(serviceFile))
             {
-                log.Error("Configuration file appsettings.json not found");
+                log.Error("Configuration file service.json not found");
                 return;
             }
+
+            var vendors = Path.Combine(directory, "vendors.json");
+            if (!File.Exists(Path.Combine(directory, "vendors.json")))
+            {
+                log.Error("Vendors file vendors.json not found");
+                return;
+            }
+
+            var serviceConfig = JsonConvert.DeserializeObject<ServiceConfig>(File.ReadAllText(serviceFile));
 
             HostFactory.Run(x =>
             {
                 x.Service<LightsService>(s =>
                 {
-                    s.ConstructUsing(name => new LightsService());
+                    s.ConstructUsing(name => new LightsService(serviceConfig, new MonitoringManager(VedorsManager.Load(vendors))));
                     s.WhenStarted(tc => tc.Start());
                     s.WhenStopped(tc => tc.Stop());
                 });

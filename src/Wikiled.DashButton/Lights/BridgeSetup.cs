@@ -1,25 +1,66 @@
 ﻿using Q42.HueApi;
 using Q42.HueApi.Interfaces;
-using Q42.HueApi.Models.Bridge;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using NLog;
+using Polly;
+using Polly.Retry;
+using Wikiled.Core.Utility.Arguments;
+using Wikiled.DashButton.Config;
+using Wikiled.DashButton.Service;
+using BridgeConfig = Wikiled.DashButton.Config.BridgeConfig;
 
 namespace Wikiled.DashButton.Lights
 {
     public class BridgeSetup
     {
-        public async Task<LocatedBridge[]> Bridge()
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
+        private readonly RetryPolicy policy;
+
+        public BridgeSetup()
         {
+            policy = Policy
+                .Handle<Exception>()
+                .WaitAndRetryAsync(10, time => TimeSpan.FromSeconds(10),
+                    (exception, span, counter, context) =>
+                    {
+                        log.Error(exception.Message);
+                        if (counter < 10)
+                        {
+                            log.Info("Retrying...");
+                        }
+                    });
+        }
+
+        public async Task Setup(ServiceConfig config)
+        {
+            Guard.NotNull(() => config, config);
+            if (config.Bridges == null)
+            {
+                config.Bridges = new Dictionary<string, BridgeConfig>();
+            }
+
             IBridgeLocator locator = new HttpBridgeLocator();
             var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5));
             foreach (var bridge in bridges)
             {
+                if (config.Bridges.ContainsKey(bridge.BridgeId))
+                {
+                    log.Info("Bridge {0} is already registered", bridge.BridgeId);
+                    continue;
+                }
+
+                log.Info("Registering bridge: {0}. Please press button on it.", bridge.BridgeId);
                 ILocalHueClient client = new LocalHueClient(bridge.IpAddress);
-                var appKey = await client.RegisterAsync("DashService", "DashHost");
+                var appKey = await policy.ExecuteAsync(() => client.RegisterAsync("DashService", "DashHost"));
+                BridgeConfig bridgeConfig = new BridgeConfig();
+                bridgeConfig.AppKey = appKey;
+                bridgeConfig.ButtonAction = new Dictionary<string, ButtonAction>();
+                bridgeConfig.Id = bridge.BridgeId;
+                config.Bridges[bridge.BridgeId] = bridgeConfig;
             }
-            
-            return bridges.ToArray();
         }
     }
 }
