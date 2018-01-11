@@ -4,8 +4,10 @@ namespace Wikiled.DashButton.Lights
 {
     public interface ILightsManager
     {
-        void Start();
+        Task Start();
 
-        Task TurnGroup(string groupName);
+        Task<bool> TurnGroup(string groupName);
+
+        Task<bool> ButtonPressed(string buttonName);
     }
 }

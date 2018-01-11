@@ -1,14 +1,13 @@
-﻿using Q42.HueApi;
-using Q42.HueApi.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NLog;
 using Polly;
 using Polly.Retry;
+using Q42.HueApi;
+using Q42.HueApi.Interfaces;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.DashButton.Config;
-using Wikiled.DashButton.Service;
 using BridgeConfig = Wikiled.DashButton.Config.BridgeConfig;
 
 namespace Wikiled.DashButton.Lights

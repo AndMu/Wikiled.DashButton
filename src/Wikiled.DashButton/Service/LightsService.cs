@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using NLog;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.DashButton.Config;
 using Wikiled.DashButton.Lights;
@@ -12,6 +13,8 @@ namespace Wikiled.DashButton.Service
 {
     public class LightsService
     {
+        private static readonly Logger log = LogManager.GetCurrentClassLogger();
+
         private readonly IMonitoringManager monitoring;
 
         private readonly ILightsManagerFactory factory;
@@ -36,7 +39,7 @@ namespace Wikiled.DashButton.Service
 
         public void Start()
         {
-            var bridges = config.Bridges.Select(item => factory.Construct(item.Value));
+            var bridges = config.Bridges.Select(item => factory.Construct(item.Value)).ToArray();
             foreach (var lightsManager in bridges)
             {
                 lightsManager.Start();
@@ -45,11 +48,24 @@ namespace Wikiled.DashButton.Service
             monitoring.StartListening()
                       .Select(item => item.Mac.GetMacName())
                       .Where(item => buttons.ContainsKey(item))
+                      .GroupBy(item => item)
                       .Subscribe(
                           item =>
-                          {
-                              //buttons[item].
-                          });
+                              {
+                                  item.Throttle(TimeSpan.FromSeconds(2), scheduler)
+                                      .Subscribe(
+                                          button =>
+                                              {
+                                                  if (buttons.TryGetValue(button, out var configPair))
+                                                  {
+                                                      foreach (var bridge in bridges)
+                                                      {
+                                                          bridge.ButtonPressed(configPair.Item1);
+                                                      }
+                                                  }
+
+                                              });
+                              });
         }
 
         public void Stop()
