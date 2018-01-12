@@ -55,7 +55,7 @@ namespace Wikiled.DashButton.Monitor
 
             try
             {
-                log.Info("Subscribing to: {0}-{1}", device.Description, device.MacAddress);
+                log.Debug("Subscribing to: {0}-{1}", device.Description, device.MacAddress);
             }
             catch (Exception)
             {
@@ -84,7 +84,6 @@ namespace Wikiled.DashButton.Monitor
                 var dashMac = eth.SourceHwAddress.ToString();
                 if (dashMac.Equals(device.MacAddress.ToString()))
                 {
-                    // ignore packets from our own device
                     return;
                 }
 

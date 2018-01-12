@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Net.NetworkInformation;
+using System.Reactive;
 using Microsoft.Reactive.Testing;
 using Moq;
 using NUnit.Framework;
@@ -12,7 +15,7 @@ namespace Wikiled.DashButton.Tests.Service
     [TestFixture]
     public class LightsServiceTests : ReactiveTest
     {
-        private Mock<ServiceConfig> mockServiceConfig;
+        private ServiceConfig serviceConfig;
 
         private Mock<IMonitoringManager> mockMonitoringManager;
 
@@ -22,10 +25,18 @@ namespace Wikiled.DashButton.Tests.Service
 
         private LightsService instance;
 
+        private PacketInformation packet;
+
         [SetUp]
         public void SetUp()
         {
-            mockServiceConfig = new Mock<ServiceConfig>();
+            packet = new PacketInformation(new VendorInfo("00-11-22-33-44-55", "Amazon"), PhysicalAddress.Parse("00-11-22-33-44-55"));
+            serviceConfig = new ServiceConfig();
+            serviceConfig.Bridges = new Dictionary<string, BridgeConfig>();
+            serviceConfig.Bridges["One"] = new BridgeConfig();
+            serviceConfig.Buttons = new Dictionary<string, ButtonConfig>();
+            serviceConfig.Buttons["Main"] = new ButtonConfig();
+            serviceConfig.Buttons["Main"].Mac = "00-11-22-33-44-55";
             mockMonitoringManager = new Mock<IMonitoringManager>();
             mockLightsManagerFactory = new Mock<ILightsManagerFactory>();
             scheduler = new TestScheduler();
@@ -36,16 +47,55 @@ namespace Wikiled.DashButton.Tests.Service
         public void Construct()
         {
             Assert.Throws<ArgumentNullException>(() => new LightsService(
-                mockServiceConfig.Object,
+                null,
                 mockMonitoringManager.Object,
                 mockLightsManagerFactory.Object,
                 scheduler));
+
+            Assert.Throws<ArgumentNullException>(() => new LightsService(
+                serviceConfig,
+                null,
+                mockLightsManagerFactory.Object,
+                scheduler));
+
+            Assert.Throws<ArgumentNullException>(() => new LightsService(
+                serviceConfig,
+                mockMonitoringManager.Object,
+                null,
+                scheduler));
+
+            Assert.Throws<ArgumentNullException>(() => new LightsService(
+                serviceConfig,
+                mockMonitoringManager.Object,
+                mockLightsManagerFactory.Object,
+                null));
+        }
+
+        [Test]
+        public void Start()
+        {
+            Mock<ILightsManager> manager = new Mock<ILightsManager>();
+            mockLightsManagerFactory.Setup(item => item.Construct(It.IsAny<BridgeConfig>()))
+                                    .Returns(manager.Object);
+            var observable = scheduler.CreateHotObservable(
+                new Recorded<Notification<PacketInformation>>(0, Notification.CreateOnNext(packet)),
+                new Recorded<Notification<PacketInformation>>(1, Notification.CreateOnNext(packet)),
+                new Recorded<Notification<PacketInformation>>(TimeSpan.FromSeconds(5).Ticks, Notification.CreateOnNext(packet)));
+
+            mockMonitoringManager.Setup(item => item.StartListening())
+                                 .Returns(observable);
+            instance.Start();
+
+            scheduler.AdvanceBy(TimeSpan.FromMilliseconds(50).Ticks);
+            manager.Verify(item => item.ButtonPressed("Main"), Times.Exactly(1));
+            scheduler.AdvanceBy(TimeSpan.FromSeconds(5).Ticks);
+            manager.Verify(item => item.ButtonPressed("Main"), Times.Exactly(2));
         }
 
         private LightsService CreateService()
         {
             return new LightsService(
-                mockServiceConfig.Object,
+                serviceConfig,
                 mockMonitoringManager.Object,
                 mockLightsManagerFactory.Object,
                 scheduler);

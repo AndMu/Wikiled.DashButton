@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using NLog;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.DashButton.Config;
+using Wikiled.DashButton.Helpers;
 using Wikiled.DashButton.Lights;
 using Wikiled.DashButton.Monitor;
 
@@ -28,6 +29,7 @@ namespace Wikiled.DashButton.Service
         public LightsService(ServiceConfig config, IMonitoringManager monitoring, ILightsManagerFactory factory, IScheduler scheduler)
         {
             Guard.NotNull(() => config, config);
+            Guard.NotNull(() => factory, factory);
             Guard.NotNull(() => monitoring, monitoring);
             Guard.NotNull(() => scheduler, scheduler);
             buttons = config.Buttons.ToDictionary(item => item.Value.Mac, item => new Tuple<string, ButtonConfig>(item.Key, item.Value));
@@ -52,7 +54,7 @@ namespace Wikiled.DashButton.Service
                       .Subscribe(
                           item =>
                               {
-                                  item.Throttle(TimeSpan.FromSeconds(2), scheduler)
+                                  item.SampleFirst(TimeSpan.FromSeconds(2), scheduler)
                                       .Subscribe(
                                           button =>
                                               {

@@ -7,7 +7,7 @@ namespace Wikiled.DashButton.Monitor
     {
         public static string GetMacName(this byte[] data)
         {
-            return BitConverter.ToString(data).Replace('-', ':');
+            return BitConverter.ToString(data);
         }
 
         public static string GetMacName(this PhysicalAddress address)
