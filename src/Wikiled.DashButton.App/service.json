@@ -1,16 +1,41 @@
 {
-  "Buttons": { "Office": { "Mac": "50:F5:DA:61:A9:2F" } },
-  "Bridges": {
-    "001788fffe6d70b8": {
-      "Id": "001788fffe6d70b8",
-      "Ip": "192.168.0.133",
-      "AppKey": "qUzq4IlWjjzG4BJIsnjd1Ur3s7W5hlTUra2FSiJM",
-      "ButtonAction": {
-        "Office": {
+  "Buttons": {
+    "Office": {
+      "Mac": "50-F5-DA-61-A9-2F",
+      "Actions": [
+        {
           "Groups": [ "Office" ],
           "Type": "Simple"
         }
-      }
+      ]
+    },
+    "HallUp": {
+      "Mac": "AC-63-BE-4C-BA-9D",
+      "Actions": [
+        {
+          "Groups": [ "Corridor" ],
+          "Type": "Simple"
+        }
+      ]
+    },
+    "BedroomMain": {
+      "Mac": "0C-47-C9-CC-50-C2",
+      "Actions": [
+        {
+          "Groups": [ "Main Bedroom", "Toletas" ],
+          "Type": "Simple"
+        }
+      ]
+    },
+    "AC-63-BE-45-2A-B4": {
+      "Mac": "AC-63-BE-45-2A-B4",
+      "Actions": []
+    }
+  },
+  "Bridges": {
+    "001788fffe6d70b8": {
+      "Id": "001788fffe6d70b8",
+      "AppKey": "qUzq4IlWjjzG4BJIsnjd1Ur3s7W5hlTUra2FSiJM"
     }
   }
 }

@@ -16,15 +16,17 @@ namespace Wikiled.DashButton.Service
     {
         private static readonly Logger log = LogManager.GetCurrentClassLogger();
 
-        private readonly IMonitoringManager monitoring;
-
-        private readonly ILightsManagerFactory factory;
+        private readonly Dictionary<string, Tuple<string, ButtonConfig>> buttons;
 
         private readonly ServiceConfig config;
 
+        private readonly ILightsManagerFactory factory;
+
+        private readonly IMonitoringManager monitoring;
+
         private readonly IScheduler scheduler;
 
-        private readonly Dictionary<string, Tuple<string, ButtonConfig>> buttons;
+        private IDisposable buttonSubscription;
 
         public LightsService(ServiceConfig config, IMonitoringManager monitoring, ILightsManagerFactory factory, IScheduler scheduler)
         {
@@ -47,31 +49,43 @@ namespace Wikiled.DashButton.Service
                 lightsManager.Start();
             }
 
-            monitoring.StartListening()
-                      .Select(item => item.Mac.GetMacName())
-                      .Where(item => buttons.ContainsKey(item))
-                      .GroupBy(item => item)
-                      .Subscribe(
-                          item =>
-                              {
-                                  item.SampleFirst(TimeSpan.FromSeconds(2), scheduler)
-                                      .Subscribe(
-                                          button =>
-                                              {
-                                                  if (buttons.TryGetValue(button, out var configPair))
-                                                  {
-                                                      foreach (var bridge in bridges)
-                                                      {
-                                                          bridge.ButtonPressed(configPair.Item1);
-                                                      }
-                                                  }
-
-                                              });
-                              });
+            buttonSubscription = monitoring.StartListening()
+                                           .Select(item => item.Mac.GetMacName())
+                                           .Where(item => buttons.ContainsKey(item))
+                                           .GroupBy(item => item)
+                                           .Subscribe(item => { ProcessMessage(item, bridges); });
         }
 
         public void Stop()
         {
+            buttonSubscription?.Dispose();
+            buttonSubscription = null;
+        }
+
+        private void ProcessMessage(IGroupedObservable<string, string> item, ILightsManager[] bridges)
+        {
+            item.SampleFirst(TimeSpan.FromSeconds(2), scheduler)
+                .Subscribe(
+                    button => { OnMacMessage(bridges, button); });
+        }
+
+        private void OnMacMessage(ILightsManager[] bridges, string mac)
+        {
+            log.Debug("Received {0}", mac);
+            if (buttons.TryGetValue(mac, out var configPair))
+            {
+                log.Info("Button pressed: [{0}]", mac);
+                foreach (var bridge in bridges)
+                {
+                    foreach (var action in configPair.Item2.Actions)
+                    {
+                        foreach (var actionGroup in action.Groups)
+                        {
+                            bridge.TurnGroup(actionGroup);
+                        }
+                    }
+                }
+            }
         }
     }
 }

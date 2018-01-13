@@ -7,7 +7,5 @@ namespace Wikiled.DashButton.Lights
         Task Start();
 
         Task<bool> TurnGroup(string groupName);
-
-        Task<bool> ButtonPressed(string buttonName);
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.NetworkInformation;
@@ -28,7 +27,7 @@ namespace Wikiled.DashButton.Monitor
         {
             var macAddrBytes = macAddress.GetAddressBytes().Take(3).ToArray();
             var identifier = macAddrBytes.GetMacName();
-            var mask = identifier.Replace(":", string.Empty);
+            var mask = identifier.Replace("-", string.Empty);
             if (!vendorNames.TryGetValue(mask, out var name))
             {
                 name = "Unknown";

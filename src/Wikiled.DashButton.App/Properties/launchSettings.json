@@ -1,7 +1,8 @@
 {
   "profiles": {
     "Wikiled.DashButton.App": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "DiscoverButtons"
     }
   }
 }

@@ -55,7 +55,7 @@ namespace Wikiled.DashButton.Monitor
 
             try
             {
-                log.Debug("Subscribing to: {0}-{1}", device.Description, device.MacAddress);
+                log.Info("Subscribing to: {0}-{1}", device.Description, device.MacAddress);
             }
             catch (Exception)
             {

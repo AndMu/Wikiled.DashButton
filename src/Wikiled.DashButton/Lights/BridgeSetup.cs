@@ -48,7 +48,6 @@ namespace Wikiled.DashButton.Lights
                 if (config.Bridges.TryGetValue(bridge.BridgeId, out var bridgeConfig))
                 {
                     log.Info("Bridge {0} is already registered", bridge.BridgeId);
-                    bridgeConfig.Ip = bridge.IpAddress;
                     continue;
                 }
 
@@ -57,9 +56,7 @@ namespace Wikiled.DashButton.Lights
                 var appKey = await policy.ExecuteAsync(() => client.RegisterAsync("DashService", "DashHost")).ConfigureAwait(false);
                 bridgeConfig = new BridgeConfig();
                 bridgeConfig.AppKey = appKey;
-                bridgeConfig.ButtonAction = new Dictionary<string, ButtonAction>();
                 bridgeConfig.Id = bridge.BridgeId;
-                bridgeConfig.Ip = bridge.IpAddress;
                 config.Bridges[bridge.BridgeId] = bridgeConfig;
             }
         }

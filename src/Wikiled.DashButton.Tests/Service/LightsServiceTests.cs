@@ -37,6 +37,7 @@ namespace Wikiled.DashButton.Tests.Service
             serviceConfig.Buttons = new Dictionary<string, ButtonConfig>();
             serviceConfig.Buttons["Main"] = new ButtonConfig();
             serviceConfig.Buttons["Main"].Mac = "00-11-22-33-44-55";
+            serviceConfig.Buttons["Main"].Actions = new[] { new ButtonAction { Groups = new[] { "TestMain" }, Type = ButtonActionType.Simple } };
             mockMonitoringManager = new Mock<IMonitoringManager>();
             mockLightsManagerFactory = new Mock<ILightsManagerFactory>();
             scheduler = new TestScheduler();
@@ -87,9 +88,9 @@ namespace Wikiled.DashButton.Tests.Service
             instance.Start();
 
             scheduler.AdvanceBy(TimeSpan.FromMilliseconds(50).Ticks);
-            manager.Verify(item => item.ButtonPressed("Main"), Times.Exactly(1));
+            manager.Verify(item => item.TurnGroup("TestMain"), Times.Exactly(1));
             scheduler.AdvanceBy(TimeSpan.FromSeconds(5).Ticks);
-            manager.Verify(item => item.ButtonPressed("Main"), Times.Exactly(2));
+            manager.Verify(item => item.TurnGroup("TestMain"), Times.Exactly(2));
         }
 
         private LightsService CreateService()

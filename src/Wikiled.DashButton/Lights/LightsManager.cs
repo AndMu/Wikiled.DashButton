@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 using Q42.HueApi;
 using Q42.HueApi.Interfaces;
 using Q42.HueApi.Models.Groups;
 using Wikiled.Core.Utility.Arguments;
-using Wikiled.DashButton.Config;
 using BridgeConfig = Wikiled.DashButton.Config.BridgeConfig;
 
 namespace Wikiled.DashButton.Lights
@@ -29,7 +29,15 @@ namespace Wikiled.DashButton.Lights
 
         public async Task Start()
         {
-            client = new LocalHueClient(config.Ip);
+            IBridgeLocator locator = new HttpBridgeLocator();
+            var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5)).ConfigureAwait(false);
+            var bridge = bridges.FirstOrDefault(item => item.BridgeId == config.Id);
+            if (bridge == null)
+            {
+                throw new InvalidOperationException($"Bridge [{config.Id}] not found");
+            }
+
+            client = new LocalHueClient(bridge.IpAddress);
             client.Initialize(config.AppKey);
             var groups = await client.GetGroupsAsync().ConfigureAwait(false);
             groupsTable.Clear();
@@ -45,21 +53,6 @@ namespace Wikiled.DashButton.Lights
             }
         }
 
-        public async Task<bool> ButtonPressed(string buttonName)
-        {
-            if (!config.ButtonAction.TryGetValue(buttonName, out var action))
-            {
-                return false;
-            }
-
-            foreach (var actionGroup in action.Groups)
-            {
-                await TurnGroup(actionGroup).ConfigureAwait(false);
-            }
-
-            return true;
-        }
-
         public async Task<bool> TurnGroup(string groupName)
         {
             if (client == null)
@@ -67,6 +60,7 @@ namespace Wikiled.DashButton.Lights
                 throw new InvalidOperationException("Lights manager is not started");
             }
 
+            log.Info("TurnGroup: {0}", groupName);
             if (!groupsTable.TryGetValue(groupName, out var @group))
             {
                 log.Error("Group [{0}] is not found", groupName);
@@ -76,7 +70,12 @@ namespace Wikiled.DashButton.Lights
             group = await client.GetGroupAsync(@group.Id).ConfigureAwait(false);
             var command = new LightCommand();
             command.On = !group.State.AnyOn;
-            await client.SendGroupCommandAsync(command, groupName).ConfigureAwait(false);
+            if (command.On == true)
+            {
+                command.Brightness = 255;
+            }
+
+            await client.SendGroupCommandAsync(command, @group.Id).ConfigureAwait(false);
             return true;
         }
     }

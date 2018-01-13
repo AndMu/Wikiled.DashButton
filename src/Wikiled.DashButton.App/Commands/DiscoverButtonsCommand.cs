@@ -67,6 +67,7 @@ namespace Wikiled.DashButton.App.Commands
                                    ButtonConfig config = new ButtonConfig();
                                    config.Mac = name;
                                    serviceConfig.Buttons.Add(name, config);
+                                   config.Actions = new ButtonAction[] { };
                                    File.WriteAllText(serviceFile, JsonConvert.SerializeObject(serviceConfig));
                                }
                            });
