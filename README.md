@@ -2,6 +2,8 @@
 
 Windows Application/Service to discover Amazon Dash buttons and use them to control Philips Hue Lights
 
+[![GitHub release](https://img.shields.io/github/release/qubyte/rubidium.svg)]()
+
 ## Reuirements
 
 * [WinpCap](https://www.winpcap.org/install/default.htm)
