@@ -4,7 +4,7 @@ Windows Application/Service to discover Amazon Dash buttons and use them to cont
 
 ## Reuirements
 
-* ![WinpCap](https://www.winpcap.org/install/default.htm)
+* [WinpCap](https://www.winpcap.org/install/default.htm)
 
 
 ## Discover Amazon buttons
