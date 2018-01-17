@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Reactive;
+using System.Threading.Tasks;
 using Microsoft.Reactive.Testing;
 using Moq;
 using NUnit.Framework;
@@ -86,11 +87,12 @@ namespace Wikiled.DashButton.Tests.Service
             mockMonitoringManager.Setup(item => item.StartListening())
                                  .Returns(observable);
             instance.Start();
-
+            var groups = new[] { "TestMain" };
+            manager.Setup(item => item.IsAnyOn(groups)).Returns(Task.FromResult(false));
             scheduler.AdvanceBy(TimeSpan.FromMilliseconds(50).Ticks);
-            manager.Verify(item => item.TurnGroup("TestMain"), Times.Exactly(1));
+            manager.Verify(item => item.TurnGroup(groups, true), Times.Exactly(1));
             scheduler.AdvanceBy(TimeSpan.FromSeconds(5).Ticks);
-            manager.Verify(item => item.TurnGroup("TestMain"), Times.Exactly(2));
+            manager.Verify(item => item.TurnGroup(groups, true), Times.Exactly(2));
         }
 
         private LightsService CreateService()
