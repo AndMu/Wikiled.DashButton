@@ -22,7 +22,7 @@
       "Mac": "0C-47-C9-CC-50-C2",
       "Actions": [
         {
-          "Groups": [ "Main Bedroom", "Toletas" ],
+          "Groups": [ "Main Bedroom", "Toilet" ],
           "Type": "Simple"
         }
       ]

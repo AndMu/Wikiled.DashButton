@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Threading.Tasks;
 using NLog;
 using Wikiled.Core.Utility.Arguments;
 using Wikiled.DashButton.Config;
@@ -65,27 +66,36 @@ namespace Wikiled.DashButton.Service
         private void ProcessMessage(IGroupedObservable<string, string> item, ILightsManager[] bridges)
         {
             item.SampleFirst(TimeSpan.FromSeconds(2), scheduler)
+                .Select(button => OnMacMessage(bridges, button))
+                .Merge()
                 .Subscribe(
-                    button => { OnMacMessage(bridges, button); });
+                    x =>
+                        {
+                            log.Info("Command successful: {0}", x);
+                        })
+                   ;
         }
 
-        private void OnMacMessage(ILightsManager[] bridges, string mac)
+        private async Task<bool> OnMacMessage(ILightsManager[] bridges, string mac)
         {
             log.Debug("Received {0}", mac);
-            if (buttons.TryGetValue(mac, out var configPair))
+            if (!buttons.TryGetValue(mac, out var configPair))
             {
-                log.Info("Button pressed: [{0}]", mac);
-                foreach (var bridge in bridges)
+                return false;
+            }
+
+            log.Info("Button pressed: [{0}] - [{1}]", mac, configPair.Item1);
+            bool result = true;
+            foreach (var bridge in bridges)
+            {
+                foreach (var action in configPair.Item2.Actions)
                 {
-                    foreach (var action in configPair.Item2.Actions)
-                    {
-                        foreach (var actionGroup in action.Groups)
-                        {
-                            bridge.TurnGroup(actionGroup);
-                        }
-                    }
+                    var isOn = await bridge.IsAnyOn(action.Groups).ConfigureAwait(false);
+                    await bridge.TurnGroup(action.Groups, !isOn).ConfigureAwait(false);
                 }
             }
+
+            return result;
         }
     }
 }

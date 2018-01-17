@@ -6,6 +6,8 @@ namespace Wikiled.DashButton.Lights
     {
         Task Start();
 
-        Task<bool> TurnGroup(string groupName);
+        Task<bool> IsAnyOn(string[] groups);
+
+        Task<bool> TurnGroup(string[] groups, bool isOn);
     }
 }
